@@ -35,13 +35,16 @@ This is useful for:
 ## 📦 Custom Resource Example
 
 ```yaml
-apiVersion: api.adityajoshi.online/v1alpha1
+apiVersion: api.dpranav.online/v1alpha1
 kind: Scaler
 metadata:
-  name: sample-scaler
+  labels:
+    app.kubernetes.io/name: scaler-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: scaler-sample
 spec:
-  start: 9
-  end: 18
+  start: 5        # 5 AM UTC
+  end: 7          # 7 AM UTC
   replicas: 5
   deployments:
     - name: nginx
@@ -54,10 +57,13 @@ spec:
 
 ```
 .
-├── api/v1alpha1        # CRD definitions (Spec & Status)
-├── controllers         # Reconciliation logic
-├── config              # Kubernetes manifests
-├── main.go             # Entry point
+├── api/v1alpha1/               # CRD definitions (Spec & Status)
+├── internal/controller/        # Reconciliation logic
+├── config/                     # Kubernetes manifests (CRDs, RBAC, samples)
+├── cmd/main.go                 # Entry point
+├── Dockerfile
+├── Makefile
+└── PROJECT                     # Kubebuilder project metadata
 ```
 
 ---
@@ -66,7 +72,7 @@ spec:
 
 ### Prerequisites
 
-* Go (>= 1.19)
+* Go (>= 1.24)
 * Docker
 * kubectl
 * Operator SDK
@@ -90,12 +96,29 @@ make docker-push IMG=<your-docker-image>
 make deploy IMG=<your-docker-image>
 ```
 
+> **Note:** If you encounter RBAC errors, you may need to grant yourself cluster-admin privileges or be logged in as admin.
+
 ---
 
 ### 📥 Apply a Scaler Resource
 
 ```bash
 kubectl apply -f config/samples/
+```
+
+---
+
+### 🗑️ Uninstall
+
+```bash
+# Delete the Scaler CRs
+kubectl delete -k config/samples/
+
+# Delete the CRDs
+make uninstall
+
+# Remove the controller
+make undeploy
 ```
 
 ---
@@ -133,7 +156,19 @@ kubectl apply -f config/samples/
 
 ## 📜 License
 
-Licensed under the Apache License 2.0.
+Copyright 2026 Pranav Deshpande.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 ---
 
