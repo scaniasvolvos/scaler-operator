@@ -1,0 +1,15 @@
+apiVersion: api.dpranav.online/v1alpha1
+kind: Scaler
+metadata:
+  labels:
+    app.kubernetes.io/name: scaler-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: scaler-sample
+spec:
+  start: 5 #AM in UTC
+  end: 7 #AM in UTC
+  replicas: 5
+  deployments:
+    - name : nginx
+      namespace: default
+
