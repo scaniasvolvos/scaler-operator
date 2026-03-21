@@ -1,135 +1,148 @@
-# scaler-operator
-// TODO(user): Add simple overview of use/purpose
+# Scaler Operator 🚀
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+A simple Kubernetes Operator built using Operator SDK that performs **time-based scaling of Deployments**.
 
-## Getting Started
+---
+
+## 📌 Overview
+
+Scaler Operator allows you to automatically scale one or more Kubernetes Deployments to a desired number of replicas **within a specified time window (UTC)**.
+
+This is useful for:
+
+* Cost optimization (scale down during off-hours)
+* Handling predictable traffic spikes
+* Scheduled scaling without relying on HPA
+
+---
+
+## ⚙️ How It Works
+
+1. Define a custom resource (`Scaler`)
+2. Specify:
+
+   * Start and end time (UTC hours)
+   * Desired replicas
+   * Target deployments
+3. The controller:
+
+   * Runs every 30 seconds
+   * Checks current time
+   * Scales deployments if within the defined window
+
+---
+
+## 📦 Custom Resource Example
+
+```yaml
+apiVersion: api.adityajoshi.online/v1alpha1
+kind: Scaler
+metadata:
+  name: sample-scaler
+spec:
+  start: 9
+  end: 18
+  replicas: 5
+  deployments:
+    - name: nginx
+      namespace: default
+```
+
+---
+
+## 🧱 Project Structure
+
+```
+.
+├── api/v1alpha1        # CRD definitions (Spec & Status)
+├── controllers         # Reconciliation logic
+├── config              # Kubernetes manifests
+├── main.go             # Entry point
+```
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- go version v1.24.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
 
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+* Go (>= 1.19)
+* Docker
+* kubectl
+* Operator SDK
+* Kubernetes cluster (Minikube / Kind / EKS etc.)
 
-```sh
-make docker-build docker-push IMG=<some-registry>/scaler-operator:tag
+---
+
+### 🛠️ Build and Deploy
+
+```bash
+# Generate manifests
+make manifests
+
+# Build docker image
+make docker-build IMG=<your-docker-image>
+
+# Push image
+make docker-push IMG=<your-docker-image>
+
+# Deploy CRDs and controller
+make deploy IMG=<your-docker-image>
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
+---
 
-**Install the CRDs into the cluster:**
+### 📥 Apply a Scaler Resource
 
-```sh
-make install
+```bash
+kubectl apply -f config/samples/
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
+---
 
-```sh
-make deploy IMG=<some-registry>/scaler-operator:tag
-```
+## 🔄 Reconciliation Behavior
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
+* Runs every **30 seconds**
+* Uses **UTC time**
+* Scales deployments only within the defined window
+* Updates status as:
 
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+  * `Success`
+  * `Failed`
 
-```sh
-kubectl apply -k config/samples/
-```
+---
 
->**NOTE**: Ensure that the samples has default values to test it out.
+## ⚠️ Limitations
 
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
+* Timezone not configurable (UTC only)
+* No scale-down logic outside time window
+* Basic status reporting
+* No metrics or observability
 
-```sh
-kubectl delete -k config/samples/
-```
+---
 
-**Delete the APIs(CRDs) from the cluster:**
+## 💡 Future Improvements
 
-```sh
-make uninstall
-```
+* Add timezone support
+* Cron-based scheduling
+* Integration with metrics (CPU-based scaling)
+* Better error handling and retries
+* Observability (Prometheus metrics)
 
-**UnDeploy the controller from the cluster:**
+---
 
-```sh
-make undeploy
-```
+## 📜 License
 
-## Project Distribution
+Licensed under the Apache License 2.0.
 
-Following the options to release and provide this solution to the users.
+---
 
-### By providing a bundle with all YAML files
+## 🙌 Acknowledgements
 
-1. Build the installer for the image built and published in the registry:
+Built using:
 
-```sh
-make build-installer IMG=<some-registry>/scaler-operator:tag
-```
+* Operator SDK
+* Kubebuilder
+* Kubernetes controller-runtime
 
-**NOTE:** The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without its
-dependencies.
-
-2. Using the installer
-
-Users can just run 'kubectl apply -f <URL for YAML BUNDLE>' to install
-the project, i.e.:
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/scaler-operator/<tag or branch>/dist/install.yaml
-```
-
-### By providing a Helm Chart
-
-1. Build the chart using the optional helm plugin
-
-```sh
-operator-sdk edit --plugins=helm/v1-alpha
-```
-
-2. See that a chart was generated under 'dist/chart', and users
-can obtain this solution from there.
-
-**NOTE:** If you change the project, you need to update the Helm Chart
-using the same command above to sync the latest changes. Furthermore,
-if you create webhooks, you need to use the above command with
-the '--force' flag and manually ensure that any custom configuration
-previously added to 'dist/chart/values.yaml' or 'dist/chart/manager/manager.yaml'
-is manually re-applied afterwards.
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2026 Pranav Deshpande.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+---
