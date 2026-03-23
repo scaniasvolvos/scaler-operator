@@ -57,7 +57,7 @@ type ScalerReconciler struct {
 func (r *ScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = logf.FromContext(ctx)
 
-	// ✅ Step 1: Logging context
+	// Step 1: Logging context
 	log := logger.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
 
 	log.Info("Reconcile Called")
