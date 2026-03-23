@@ -25,4 +25,3 @@ resources:
 - scaler_admin_role.yaml
 - scaler_editor_role.yaml
 - scaler_viewer_role.yaml
-

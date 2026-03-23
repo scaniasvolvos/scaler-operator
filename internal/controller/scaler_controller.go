@@ -83,12 +83,12 @@ func (r *ScalerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	// Step 5: Check if scaling window
 	if currentHour >= startTime && currentHour <= endTime {
 		// Step 6: Trigger scaling
-		if err = scaleDeployment(scaler, r, ctx, int32(scaler.Spec.Replicas)); err != nil {
+		if err = scaleDeployment(scaler, r, ctx, scaler.Spec.Replicas); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 	// Step 7: Requeue
-	return ctrl.Result{RequeueAfter: time.Duration(30 * time.Second)}, nil
+	return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
 }
 
 func scaleDeployment(scaler *apiv1alpha1.Scaler, r *ScalerReconciler, ctx context.Context, replicas int32) error {
