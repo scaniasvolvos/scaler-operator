@@ -51,7 +51,17 @@ var _ = Describe("Scaler Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: apiv1alpha1.ScalerSpec{
+						Start:    0,
+						End:      23,
+						Replicas: 1,
+						Deployments: []apiv1alpha1.NamespacedName{
+							{
+								Name:      "test-deployment",
+								Namespace: "default",
+							},
+						},
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
